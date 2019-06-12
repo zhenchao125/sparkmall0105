@@ -3,7 +3,7 @@ package com.atguigu.sparkmock
 import java.text.SimpleDateFormat
 import java.util.UUID
 
-import com.atguigu.sparkmall.common.bean.com.atguigu.sparkmall.common.bean.{CityInfo, ProductInfo, UserInfo, UserVisitAction}
+import com.atguigu.sparkmall.common.bean.{CityInfo, ProductInfo, UserInfo, UserVisitAction}
 import com.atguigu.sparkmall.common.util.ConfigurationUtil
 import com.atguigu.sparkmock.util.{RandomDate, RandomNumUtil, RandomOptions}
 import org.apache.spark.sql.{DataFrame, SparkSession}

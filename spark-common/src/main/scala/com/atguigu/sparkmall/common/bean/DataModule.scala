@@ -1,7 +1,5 @@
 package com.atguigu.sparkmall.common.bean
 
-package com.atguigu.sparkmall.common.bean
-
 /**
   * 用户表
   *
