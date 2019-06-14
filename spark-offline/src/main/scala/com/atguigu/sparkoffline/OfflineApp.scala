@@ -1,5 +1,7 @@
 package com.atguigu.sparkoffline
 
+import java.util.UUID
+
 import com.alibaba.fastjson.JSON
 import com.atguigu.sparkmall.common.bean.UserVisitAction
 import com.atguigu.sparkmall.common.util.ConfigurationUtil
@@ -14,22 +16,22 @@ import org.apache.spark.sql.SparkSession
   */
 object OfflineApp {
     def main(args: Array[String]): Unit = {
-//        System.setProperty("HADOOP_USER_NAME", "atguigu")
+        //        System.setProperty("HADOOP_USER_NAME", "atguigu")
         val spark: SparkSession = SparkSession.builder()
             .master("local[2]")
             .appName("OfflineApp")
             .enableHiveSupport()
             .getOrCreate()
-//        spark.sparkContext.setCheckpointDir("hdfs://hadoop201:9000/ck")
+        //        spark.sparkContext.setCheckpointDir("hdfs://hadoop201:9000/ck")
         // 1. 从hive中读取数据
         val userVisitActionRDD: RDD[UserVisitAction] = readUserVisitActionRDD(spark)
         // 对rdd做缓存
         userVisitActionRDD.cache()
         // checkpoint
-//        userVisitActionRDD.checkpoint()
-        
+        //        userVisitActionRDD.checkpoint()
+        val taskId: String = UUID.randomUUID().toString
         // 需求1:
-        CategoryTop10App.statCategoryTop10(spark, userVisitActionRDD)
+        CategoryTop10App.statCategoryTop10(spark, userVisitActionRDD, taskId)
         
         // 需求2:
         
@@ -56,7 +58,6 @@ object OfflineApp {
         if (condition.endAge > 0) {
             sql += s" and u.age<=${condition.endAge}"
         }
-        println(sql)
         import spark.implicits._
         spark.sql("use sparkmall0105")
         spark.sql(sql).as[UserVisitAction].rdd
