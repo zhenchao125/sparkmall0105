@@ -51,8 +51,12 @@ object CategoryTop10App {
         // 2. 把指标写入到 mysql
         JDBCUtil.executeUpdate("use sparkmall0105", null)
         JDBCUtil.executeUpdate("truncate category_top10", null)
-        val top10Array: List[Array[Any]] = categoryCountInfoTop10.map(info => Array(info.taskId, info.categoryId, info.clickCount, info.orderCount, info.payCount))
+        val top10Array: List[Array[Any]] = categoryCountInfoTop10.map(info =>
+            Array(info.taskId, info.categoryId, info.clickCount, info.orderCount, info.payCount)
+        )
         JDBCUtil.executeBatchUpdate("insert into category_top10 values(?, ?, ?, ?, ?)", top10Array)
+        // 返回top10的category信息, 用于其他的需求
+        categoryCountInfoTop10
     }
 }
 
