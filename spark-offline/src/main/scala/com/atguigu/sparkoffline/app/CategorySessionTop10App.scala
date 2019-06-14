@@ -1,6 +1,7 @@
 package com.atguigu.sparkoffline.app
 
 import com.atguigu.sparkmall.common.bean.UserVisitAction
+import com.atguigu.sparkmall.common.util.JDBCUtil
 import com.atguigu.sparkoffline.bean.{CategoryCountInfo, CategorySession}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
@@ -39,9 +40,19 @@ object CategorySessionTop10App {
                 result
             }
         }
-        rdd.collect.foreach(println)
-        //  4. 写入到mysql
+        //  4. 写入到mysql 拉到驱动端
+        //        val csArray: Array[Array[Any]] = rdd.collect.map(cs => Array(cs.taskId, cs.categoryId, cs.sessionId, cs.clickCount))
+        //        spark.sql("use sparkmall0105")
+        //        JDBCUtil.executeBatchUpdate("insert into category_top10_session_count values(?, ?, ?, ?)", csArray)
         
+        // 直接在executor端操作写入mysql
+        JDBCUtil.executeUpdate("use sparkmall0105", null)
+        JDBCUtil.executeUpdate("truncate category_top10_session_count", null)
+        rdd.foreachPartition(categorySessionIt => {
+            JDBCUtil.executeUpdate("use sparkmall0105", null)
+            val csArray = categorySessionIt.map(cs => Array(cs.taskId, cs.categoryId, cs.sessionId, cs.clickCount)).toList
+            JDBCUtil.executeBatchUpdate("insert into category_top10_session_count values(?, ?, ?, ?)", csArray)
+        })
     }
 }
 
