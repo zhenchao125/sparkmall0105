@@ -13,7 +13,6 @@ import org.apache.spark.sql.{SaveMode, SparkSession}
 object AreaProductClick {
     
     
-    
     def statAreaClickTop3Product(spark: SparkSession, taskId: String) = {
         // 0 注册自定义聚合函数
         spark.udf.register("city_remark", new AreaClickUDAF)
@@ -39,8 +38,8 @@ object AreaProductClick {
               |from t1
               |group by t1.area, t1.product_name
             """.stripMargin).createOrReplaceTempView("t2")
-    
-//        3. 对每个区域内产品的点击量进行倒序排列
+        
+        // 3. 对每个区域内产品的点击量进行倒序排列
         spark.sql(
             """
               |select
@@ -66,6 +65,7 @@ object AreaProductClick {
             .jdbc(conf.getString("jdbc.url"), "arer_product_click", props)
     }
 }
+
 /*
 各区域热门商品 Top3
 
