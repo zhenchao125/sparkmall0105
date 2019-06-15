@@ -56,7 +56,6 @@ class AreaClickUDAF extends UserDefinedAggregateFunction {
         }
         
         buffer1(1) = buffer1.getLong(1) + buffer2.getLong(1)
-        
     }
     
     // 最终的输出. "北京21.2%，天津13.2%，其他65.6%"
