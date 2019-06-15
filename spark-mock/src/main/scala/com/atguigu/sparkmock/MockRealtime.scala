@@ -16,7 +16,7 @@ import scala.collection.mutable.ArrayBuffer
 /**
   * 生成实时的模拟数据
   */
-object MockRealTime {
+object MockRealtime {
     /*
     数据格式:
         timestamp   area    city    userid  adid
