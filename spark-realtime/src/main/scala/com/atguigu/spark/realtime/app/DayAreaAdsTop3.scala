@@ -1,6 +1,10 @@
 package com.atguigu.spark.realtime.app
 
+import com.alibaba.fastjson.JSON
+import com.atguigu.sparkmall.common.util.RedisUtil
 import org.apache.spark.streaming.dstream.DStream
+import org.json4s.jackson.JsonMethods
+import redis.clients.jedis.Jedis
 
 /**
   * Author lzc
@@ -16,19 +20,55 @@ object DayAreaAdsTop3 {
             }
         }
         
-        dayAreaAdsCount.reduceByKey(_ + _).map{
-            case () => {
-            
+        val dayToAreaAdsCountIt: DStream[(String, Iterable[(String, (String, Int))])] = dayAreaAdsCount.reduceByKey(_ + _).map {
+            case (areaAdsDay, count) => {
+                val Array(area, adsId, day) = areaAdsDay.split(":")
+                (day, (area, (adsId, count)))
+            }
+        }.groupByKey()
+        
+        val dayAreaAdsCountList: DStream[(String, Map[String, List[(String, Int)]])] = dayToAreaAdsCountIt.map {
+            case (day, it) => {
+                val areaItMap: Map[String, Iterable[(String, (String, Int))]] = it.groupBy(_._1)
+                val temp: Map[String, List[(String, Int)]] = areaItMap.map {
+                    case (k, v) => (k, v.map(_._2).toList.sortBy(-_._2).take(3))
+                }
+                (day, temp)
             }
         }
-    
-    
+        // 写入到redis
+        //  把list集合转成json字符串
+        val dayAreaJson: DStream[(String, Map[String, String])] = dayAreaAdsCountList.map {
+            case (day, areaAdsCountMap) => {
+                val temp: Map[String, String] = areaAdsCountMap.map {
+                    case (area, adsCountList) => {
+                        import org.json4s.JsonDSL._
+                        (area, JsonMethods.compact(JsonMethods.render(adsCountList)))
+                    }
+                }
+                (day, temp)
+            }
+        }
+        
+        dayAreaJson.foreachRDD(rdd => {
+            val arr: Array[(String, Map[String, String])] = rdd.collect()
+            val client: Jedis = RedisUtil.getJedisClient
+            arr.foreach{
+                case (day, map) => {
+                    // 这里的map是scala的map, 但是这个函数需要java的map
+                    import scala.collection.JavaConversions._   // 可以完成从scala到java集合的转换
+                    client.hmset("area:ads:top3:" + day, map)
+                }
+            }
+            client.close()
+        })
+        
     }
-    
-    
-    
 }
+
 /*
+fastjson 是给java来设计, 目前对scala的集合类型支持的不好
+
 正推:
 (area:city:ads:day, count) map
 => (day:area:ads, count)  reduceByKey
