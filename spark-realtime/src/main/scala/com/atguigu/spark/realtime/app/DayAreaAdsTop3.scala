@@ -36,7 +36,7 @@ object DayAreaAdsTop3 {
 => (day,(area,(ads, count)))  groupByKey
 => (day, Iterator[(area,(ads, count)))])  对迭代器做操作 groupBy(area)
 => (day, Map[(area, Iterator[(area,(ads, count))))])  map
-=> (day, Map[(area, Iterator[(ads, count))))])  map
+=> (day, Map[(area, Iterator[(ads, count))))])
 
 倒推:
 => RDD[(day, Map[area, Iterator[(ads, count)]])]   map 的时候, 把迭代器变成List
