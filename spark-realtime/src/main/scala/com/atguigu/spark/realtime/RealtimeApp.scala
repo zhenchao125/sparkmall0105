@@ -1,6 +1,6 @@
 package com.atguigu.spark.realtime
 
-import com.atguigu.spark.realtime.app.{BlackListApp, DayAreaAdsTop3, DayAreaCityAdsApp}
+import com.atguigu.spark.realtime.app.{BlackListApp, LastHouClickApp}
 import com.atguigu.spark.realtime.bean.AdsInfo
 import com.atguigu.sparkmall.common.util.MyKafkaUtils
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -32,11 +32,14 @@ object RealtimeApp {
         BlackListApp.checkUserToBlackList(filteredDStream) // 检测用户是否需要加入黑名单, 只对过滤后的处理
         
         // 需求 6:
-        val dayAreaCityAdsCount: DStream[(String, Int)] = DayAreaCityAdsApp.statAreaCityAdsCountPerDay(filteredDStream, ssc.sparkContext)
+        //        val dayAreaCityAdsCount: DStream[(String, Int)] = DayAreaCityAdsApp.statAreaCityAdsCountPerDay(filteredDStream, ssc.sparkContext)
         
         // 需求7
-        DayAreaAdsTop3.statDayAearAdsTop3(dayAreaCityAdsCount)
+        //        DayAreaAdsTop3.statDayAearAdsTop3(dayAreaCityAdsCount)
         
+        
+        // 需求8:
+        LastHouClickApp.statLastHourAdsCount(filteredDStream)
         ssc.start()
         ssc.awaitTermination()
     }
