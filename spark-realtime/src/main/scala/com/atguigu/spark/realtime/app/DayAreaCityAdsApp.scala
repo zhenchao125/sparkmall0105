@@ -23,7 +23,6 @@ object DayAreaCityAdsApp {
             Some(seq.sum + opt.getOrElse(0))
         })
         
-        
         // 2. 写入到redis
         areaCityAdsToCount.foreachRDD(rdd => {
             rdd.foreachPartition(it => {
@@ -36,11 +35,12 @@ object DayAreaCityAdsApp {
                         client.hset(key, field, count.toString)
                     }
                 }
-                
                 client.close()
-                
             })
         })
+        
+        // 返回这个DStream, 给需求7准备
+        areaCityAdsToCount
     }
 }
 
